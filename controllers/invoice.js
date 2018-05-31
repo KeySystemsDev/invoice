@@ -2,7 +2,7 @@
 
 const Invoice = require('../models/invoice');
 const nodemailer = require('nodemailer');
-const pdf = require('express-pdf');
+const pdfcrowd = require("pdfcrowd");
 
 function saveInvoice(req,res){
 
@@ -74,6 +74,19 @@ function emailInvoicesSave(req,res) {
 	    }
 	});
 
+		// create the API client instance
+	var client = new pdfcrowd.HtmlToPdfClient("mlopez2667", "189ffe3b3b5eecb93c039352203b9404");
+
+	// run the conversion and write the result to a file
+	var pdfinvoice = client.convertStringToFile(
+	    `${invoice}`, //Aqui va el codigo HTML com
+	    `invoice_${String(invoice.number_invoice)}.pdf`,
+	    function(err, fileName) {
+	        if (err) return console.error("Pdfcrowd Error: " + err);
+	        console.log("Creado Satisfactoriamente " + fileName);
+	        console.log(invoice.number_invoice);
+    });
+
 	const mailOptions = {
 		from: req.body.from, // sender address
 		to: req.body.to, // list of receivers
@@ -81,6 +94,10 @@ function emailInvoicesSave(req,res) {
 		bcc: req.body.bcc, // list of receivers
 		subject: 'Envio de Factura Node JS en Json', // Subject line
 		html: `${invoice}`,// plain text body
+		attachments: {   // file on disk as an attachment
+            filename: `invoice_${invoice.number_invoice}.pdf`,
+            path: `C:/proyectos/invoice_key/invoice_${invoice.number_invoice}.pdf` // stream this file
+        }
 	};
 
 	transporter.sendMail(mailOptions, function (err, info) {
