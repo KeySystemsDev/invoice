@@ -2,7 +2,9 @@
 
 const Invoice = require('../models/invoice');
 const nodemailer = require('nodemailer');
-const pdfcrowd = require("pdfcrowd");
+const pdf = require('html-pdf');
+const fs = require('fs')
+const conversion = require("phantom-html-to-pdf")();
 
 function saveInvoice(req,res){
 
@@ -67,36 +69,33 @@ function emailInvoicesSave(req,res) {
 	invoice.subject = req.body.subject;
 
 	var transporter = nodemailer.createTransport({
-	service: 'gmail',
-		auth: {
+	 service: 'gmail',
+	 auth: {
 	        user: 'propiaweb2667@gmail.com',
-	        pass: 'sistema-18233584'
+	        pass: 'sistema-18233584.$'
 	    }
 	});
 
-		// create the API client instance
-	var client = new pdfcrowd.HtmlToPdfClient("mlopez2667", "189ffe3b3b5eecb93c039352203b9404");
-
-	// run the conversion and write the result to a file
-	var pdfinvoice = client.convertStringToFile(
-	    `${invoice}`, //Aqui va el codigo HTML com
-	    `invoice_${String(invoice.number_invoice)}.pdf`,
-	    function(err, fileName) {
-	        if (err) return console.error("Pdfcrowd Error: " + err);
-	        console.log("Creado Satisfactoriamente " + fileName);
-	        console.log(invoice.number_invoice);
-    });
+		conversion({ html: `${invoice}` }, function(err, pdf) {
+		  var output = fs.createWriteStream(`pdf/invoice_${invoice.number_invoice}.pdf`);
+		  console.log(pdf.logs);
+		  console.log(pdf.numberOfPages);
+		    // since pdf.stream is a node.js stream you can use it
+		    // to save the pdf to a file (like in this example) or to
+		    // respond an http request.
+		  pdf.stream.pipe(output);
+		});
 
 	const mailOptions = {
 		from: req.body.from, // sender address
 		to: req.body.to, // list of receivers
 		cc: req.body.cc, // list of receivers
 		bcc: req.body.bcc, // list of receivers
-		subject: 'Envio de Factura Node JS en Json', // Subject line
+		subject: req.body.subject, // Subject line
 		html: `${invoice}`,// plain text body
 		attachments: {   // file on disk as an attachment
             filename: `invoice_${invoice.number_invoice}.pdf`,
-            path: `C:/proyectos/invoice_key/invoice_${invoice.number_invoice}.pdf` // stream this file
+            path: `pdf/invoice_${invoice.number_invoice}.pdf` // stream this file
         }
 	};
 
@@ -107,12 +106,12 @@ function emailInvoicesSave(req,res) {
 	     console.log(info);
 	});
 
-
-	/*invoice.save((err, invoiceStored)=>{
+	invoice.save((err, invoiceStored)=>{
 		if (err) res.status(500).send({Mensaje:`Error al salvar los datos: ${err} `})
 
 		res.status(200).send({invoice: invoiceStored});
-	});*/
+	});
+
 }
 
 module.exports = {

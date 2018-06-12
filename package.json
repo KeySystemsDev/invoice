@@ -9,20 +9,24 @@
   "license": "MIT",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
-    "body-parser": "^1.18.2",
+    "body-parser": "^1.18.3",
     "crypto": "^1.0.1",
     "express": "^4.16.3",
     "express-pdf": "^1.2.2",
+    "fs": "0.0.1-security",
+    "html-pdf": "^2.2.0",
     "jade": "^1.11.0",
     "method-override": "^2.3.1",
-    "mongoose": "^4.13.12",
+    "mongoose": "^4.13.14",
     "morgan": "^1.5.1",
-    "nodemailer": "^4.6.5",
+    "nodemailer": "^4.6.6",
     "pdfcrowd": "^4.3.3",
+    "phantom": "^4.0.12",
+    "phantom-html-to-pdf": "^0.5.6",
     "sails": "^1.0.2"
   },
   "main": "index.js",
   "devDependencies": {
-    "nodemon": "^1.17.4"
+    "nodemon": "^1.17.5"
   }
 }
